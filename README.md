@@ -1,38 +1,110 @@
-# DROP DILEMMA
+# 🤖 PunBot — Automated Cybersecurity Humor for Mastodon
 
-A browser DJ party game for 2–8 players. Includes editable secret choices, shared Crowd Energy, named simultaneous reveals, running scores, generated Tone.js music, a hidden 8–12-round ending, choice history, game theory explanations, and rematches.
+> *Because if we can't laugh at the state of infosec, we'd never stop crying.*
 
-## Current delivery status
+---
 
-Source implementation complete. TypeScript checks and game-engine tests pass. The D1 migration was generated and inspected using Drizzle's in-process API. Local framework build, browser verification, and public deployment remain unverified: the current Windows execution environment rejects Node child processes with `spawn EPERM`. The Sites publishing workflow's credential input was also rejected by automatic approval policy. No playable public deployment is available yet.
+## What Is This?
 
-## Architecture
+**PunBot** is a fully automated social media bot that posts cybersecurity puns, tech humor, and roasts of American corporate security culture to Mastodon — 4 times a day, every day, with zero manual effort.
 
-- React/Vinext client, with large mobile choice controls.
-- Cloudflare Worker API and D1-backed room state; no login required.
-- Server-owned 15-second choice phases and 5-second reveal phases. Deadlines continue independently of the host; requests advance elapsed phases.
-- Clients poll every 500ms and reconcile against increasing room revisions. This is HTTP polling rather than WebSockets. Device clocks are corrected against server timestamps. Network delays can cause small differences in reveal arrival; audio timing is approximate, not sample-accurate across devices.
-- Each room update uses a version-checked database write to prevent concurrent players overwriting one another. The API strips other players' secret selections, session tokens, and the secret round count.
-- DJ credentials stay in sessionStorage for reload/reconnect in the same tab. Authoritative scores and game state live in D1.
-- Audio is synthesized locally: kick, hi-hat, bass, chord synth, rising sweep, drop hit, and power-down. No recorded assets.
+It lives entirely on free infrastructure: GitHub stores the puns, GitHub Actions runs the scheduler, and the Mastodon API does the posting. No servers. No subscriptions. No cost.
 
-## Rules
+---
 
-Crowd Energy begins at 20 and is capped at 100. No choice defaults to BUILD. All builds add 10 each after successful drops. With zero drops, energy is not halved. With 1 to half the players dropping, droppers split starting energy as points, energy halves, then builds are added. With more than half dropping, nobody scores and energy becomes 0, wiping out builds too. Preserve fractional scores and energy; display up to one decimal. Exactly tied scores share victory.
+## Where Does It Post?
 
-Names and choices reveal together. An initial server-only random round count from 8–12 determines the ending. The final result is displayed for five seconds before the final screen.
+Follow the bot here:
+**[@lawkid@defcon.social](https://defcon.social/@lawkid)**
 
-## Finish verification and publish in a compatible environment
+This account is brand new to the [defcon.social](https://defcon.social) community — a Mastodon instance for the security-minded, the curious, and the professionally paranoid. If you're in infosec, ethical hacking, privacy advocacy, or just enjoy watching corporate cybersecurity get roasted — give it a follow. Collaboration, conversation, and community are all welcome.
 
-Use Node 22.13+ with npm and Git. Keep the existing Site identity in `.openai/hosting.json`.
+---
 
-1. `npm ci`
-2. Inspect the included schema-only migration `drizzle/0000_drop_rooms.sql`. If changing the schema, use `npm run db:generate` to append migrations.
-3. `node tests/game.test.mjs`
-4. `npx tsc --noEmit`
-5. `npm run build`
-6. Apply generated migrations to the local D1 binding using the starter's local migration instructions, then `npm start` for full API and browser checks.
-7. Verify two to eight independent sessions, concurrent editable choices, timed reveals, audio after a gesture, reload/reconnect, final history, and rematch at phone and laptop sizes.
-8. Use the Sites hosting workflow to push source, package, save, and deploy this same Site. Set public access as requested by the user; default private access would require friends to sign in.
+## Who Is This For?
 
-Room state expires after 24 hours without an update. Expired rows are ignored; a production housekeeping job or bounded cleanup should remove old rows if ongoing usage grows substantially.
+This bot was set up for a friend who is:
+
+- A **professional technical writer** specializing in cybersecurity
+- Available for **report writing, investigations, and exposure pieces** — the kind that get to the root of what needs to be said, written with precision and without flinching
+- Committed to **ethical journalism and technical documentation** at the highest standard
+- Open to collaborating with researchers, journalists, whistleblowers, and organizations who need something written properly
+
+**To commission a report, investigation, or technical write-up, reach out via Mastodon:**
+👉 [@lawkid@defcon.social](https://defcon.social/@lawkid)
+
+---
+
+## How Does It Work?
+
+```
+Claude generates puns → stored in GitHub (puns.json)
+        ↓
+GitHub Actions scheduler triggers 4x daily (8am, 12pm, 5pm, 9pm UTC)
+        ↓
+Python randomly selects a pun from the file
+        ↓
+Mastodon API posts it to @lawkid@defcon.social
+```
+
+**The stack:**
+| Component | Tool | Cost |
+|-----------|------|------|
+| Pun storage | GitHub (puns.json) | Free |
+| Scheduler | GitHub Actions | Free |
+| Posting | Mastodon API | Free |
+| Pun generation | Claude (Anthropic) | Free tier |
+
+---
+
+## Want Your Own Bot?
+
+This exact setup can be replicated for **any Mastodon account** on any instance. The same approach works for:
+
+- Daily quote bots
+- News headline bots
+- Affirmation bots
+- Niche humor accounts
+- Automated awareness campaigns
+
+**You can set this up yourself** — everything used here is free and open. The rough steps are:
+
+1. Create a GitHub repository
+2. Add your content as a JSON file
+3. Get a Mastodon API access token from your instance's app settings
+4. Store the token as a GitHub Secret
+5. Add a GitHub Actions workflow file with a cron schedule
+6. Push and let it run
+
+**Or if you'd rather have someone set it up for you**, the person who built this — **Iain Melchizedek** — is available to do exactly that. Whether you want a simple bot like this or something more complex, get in touch.
+
+---
+
+## Who Built This?
+
+This repository was set up by **Iain Melchizedek** as a demonstration of practical automation skills using free, open-source tooling. It showcases:
+
+- GitHub repository management and version control
+- GitHub Actions CI/CD and cron scheduling
+- REST API integration (Mastodon API)
+- JSON data management
+- Secure credential handling via GitHub Secrets
+- Python scripting in automated environments
+
+If you're looking for someone to set up automation, bots, workflows, or similar technical projects — **reach out.**
+
+---
+
+## Repository Structure
+
+```
+pun-bot/
+├── puns.json                          # The pun library (130+ and growing)
+└── .github/
+    └── workflows/
+        └── post-pun.yml               # GitHub Actions scheduler
+```
+
+---
+
+*Built with free tools, bad puns, and a deep appreciation for how broken enterprise cybersecurity really is.*
